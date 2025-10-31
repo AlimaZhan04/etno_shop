@@ -1,7 +1,31 @@
-import routes from './routes/routes.jsx'
-import {Routes, Route } from "react-router";
+import React, {useEffect} from 'react';
+import {Route, Routes} from "react-router";
+import routes from "./routes/routes.jsx";
+import useUserStore from "./store/user.js";
+import {CircularProgress} from "@mui/material";
 
 const App = () => {
+    const {loadUser, isGetMeLoading} = useUserStore();
+
+    useEffect(() => {
+        loadUser();
+    }, [loadUser]);
+
+    if (isGetMeLoading) {
+        return (
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100dvh',
+                }}
+            >
+                <CircularProgress />
+            </div>
+        );
+    }
+
     return (
         <>
             <Routes>
@@ -17,4 +41,4 @@ const App = () => {
     );
 };
 
-export default App;
+export default App;

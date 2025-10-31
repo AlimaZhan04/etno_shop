@@ -1,0 +1,30 @@
+.registrationWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #a8c0ff 0%, #8bb4f9 50%, #d9afd9 100%);
+  font-family: 'Poppins', sans-serif;
+  padding: 1rem;
+  background-attachment: fixed;
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Адаптивка */
+@media (max-width: 600px) {
+  .registrationWrapper {
+    background: linear-gradient(145deg, #6a11cb, #2575fc);
+    padding: 0.5rem;
+  }
+}

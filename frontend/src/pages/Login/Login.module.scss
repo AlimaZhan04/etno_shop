@@ -1,0 +1,27 @@
+.loginWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #a8c0ff 0%, #8bb4f9 50%, #d9afd9 100%);
+  font-family: 'Poppins', sans-serif;
+  padding: 1rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .loginWrapper {
+    background: linear-gradient(145deg, #a8c0ff, #d9afd9);
+    padding: 0.5rem;
+  }
+}

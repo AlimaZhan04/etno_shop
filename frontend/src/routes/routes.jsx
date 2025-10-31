@@ -1,8 +1,13 @@
-import Registration from "../pages/Registration/Registration";
-import Login from "../pages/Login/Login";
+import Registration from "../pages/Registration/Registration.jsx";
+import Login from "../pages/Login/Login.jsx";
+import MainPage from "../pages/MainPage/MainPage.jsx";
 import {PATHS} from './paths.js'
 
 const routes = [
+    {
+        path: PATHS.MAIN_PAGE,
+        element: <MainPage />
+    },
     {
         path: PATHS.REGISTER_PAGE,
         element: <Registration/>

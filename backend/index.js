@@ -1,27 +1,20 @@
-import express from "express";
-import mongoose from "mongoose";
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors'
+import authRoutes from './routes/auth.js';
 import config from "./config.js";
-import User from "./models/User.js";
 
 const app = express();
+
 app.use(express.json());
+app.use(cors())
 
-const run = async () => {
-  await mongoose.connect(config.db.url);
+app.use('/api/auth', authRoutes);
 
-  const existingUser = await User.findOne({ email: "test@example.com" });
-  if (!existingUser) {
-    const user = await User.create({
-      name: "Test User",
-      email: "test@example.com",
-      password: "123456",
-    });
-    console.log("✅ Test user created:", user);
-  }
+mongoose.connect(config.db.url)
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.log('MongoDB connection error:', err));
 
-  app.listen(config.port, () =>
-    console.log(`Server started on port ${config.port}`)
-  );
-};
-
-run().catch((e) => console.log(e));
+app.listen(config.port, () => {
+  console.log(`Server is running on port ${config.port}`);
+});
