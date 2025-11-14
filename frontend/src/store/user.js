@@ -4,6 +4,8 @@ import {create} from "zustand";
 const useUserStore = create((set) => ({
     user: null,
     isGetMeLoading: true,
+    searchText: "",
+    setSearchText: (text) => set({ searchText: text }),
 
     register: async ({ name, email, password }) => {
         set({ loading: true, error: null });

@@ -2,6 +2,8 @@ import React, {useEffect, useState} from "react";
 import axiosInstance from "../../api/axios.js";
 import {Card, CardHeader, CardTitle, CardContent} from "@/components/ui/card";
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription} from "@/components/ui/dialog";
+import { Slider} from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {ChevronLeft, ChevronRight, ShoppingCart, Trash2, Edit3} from "lucide-react";
 import {toast} from "react-hot-toast";
@@ -25,7 +27,10 @@ const ProductsGrid = () => {
     const [loading, setLoading] = useState(true);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [currentImage, setCurrentImage] = useState(0);
-    const {user} = useUserStore();
+    const [minPriceInput, setMinPriceInput] = useState(0);
+    const [maxPriceInput, setMaxPriceInput] = useState(10000); // допустим
+    const [priceRange, setPriceRange] = useState([0, 10000]);
+    const {user, searchText} = useUserStore();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,6 +38,14 @@ const ProductsGrid = () => {
             try {
                 const res = await axiosInstance.get("/products");
                 setProducts(res.data);
+
+                // автоматически устанавливаем диапазон цен по товарам
+                const prices = res.data.map(p => p.price);
+                const min = Math.min(...prices);
+                const max = Math.max(...prices);
+                setMinPriceInput(min);
+                setMaxPriceInput(max);
+                setPriceRange([min, max]);
             } catch (err) {
                 console.error("Ошибка загрузки товаров:", err);
                 toast.error("Не удалось загрузить товары");
@@ -63,12 +76,79 @@ const ProductsGrid = () => {
         }
     };
 
+    const filteredProducts = products.filter(p =>
+        p.name.toLowerCase().includes(searchText.toLowerCase()) &&
+        p.price >= priceRange[0] &&
+        p.price <= priceRange[1]
+    );
+
     if (loading) return <div className="p-4 text-center">Загрузка товаров...</div>;
 
     return (
         <div className={styles.container}>
-            <div className="p-2 flex flex-wrap justify-start gap-4 mt-25">
-                {products.map((product) => (
+            <div className="mb-4 flex items-center gap-4 mt-25">
+                {/* Инпуты */}
+                <div className="flex items-center gap-4">
+                    <div className="flex flex-col items-center">
+                        <label className="text-sm font-medium text-gray-700 mb-1">Мин</label>
+                        <Input
+                            type="number"
+                            value={minPriceInput}
+                            onChange={(e) => {
+                                let val = Number(e.target.value);
+                                if (val > priceRange[1]) val = priceRange[1];
+                                setMinPriceInput(val);
+                                setPriceRange([val, priceRange[1]]);
+                            }}
+                            className="w-24"
+                        />
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <label className="text-sm font-medium text-gray-700 mb-1">Макс</label>
+                        <Input
+                            type="number"
+                            value={maxPriceInput}
+                            onChange={(e) => {
+                                let val = Number(e.target.value);
+                                if (val < priceRange[0]) val = priceRange[0];
+                                setMaxPriceInput(val);
+                                setPriceRange([priceRange[0], val]);
+                            }}
+                            className="w-24"
+                        />
+                    </div>
+                </div>
+
+                {/* Слайдер */}
+                <div className="flex items-center justify-start w-64">
+                    <Slider
+                        value={priceRange}
+                        min={0}
+                        max={10000}
+                        step={10}
+                        onValueChange={(val) => {
+                            setPriceRange(val);
+                            setMinPriceInput(val[0]);
+                            setMaxPriceInput(val[1]);
+                        }}
+                        className="h-5 w-full"
+                    >
+                        <div className="relative w-full h-1 bg-gray-300 rounded">
+                            <div
+                                className="absolute h-1 bg-blue-500 rounded"
+                                style={{
+                                    left: `${(priceRange[0] / 10000) * 100}%`,
+                                    width: `${((priceRange[1] - priceRange[0]) / 10000) * 100}%`
+                                }}
+                            />
+                        </div>
+                    </Slider>
+                </div>
+            </div>
+
+
+            <div className="p-2 flex flex-wrap justify-start gap-4 mt-5">
+                {filteredProducts.map((product) => (
                     <Card
                         key={product._id}
                         className="cursor-pointer hover:shadow-xl transition-all duration-300 flex flex-col max-w-xs border border-gray-200 rounded-xl overflow-hidden bg-white relative"

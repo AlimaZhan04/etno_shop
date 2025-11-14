@@ -3,10 +3,10 @@ import { ShoppingCart, User, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import useUserStore from "@/store/user.js";
-import {Link, useNavigate} from "react-router"; // исправил на react-router-dom
+import {Link, useNavigate} from "react-router";
 
 const Header = () => {
-    const { user } = useUserStore();
+    const { user, searchText, setSearchText } = useUserStore();
     const navigate = useNavigate();
 
     return (
@@ -15,7 +15,7 @@ const Header = () => {
                 <div className="flex justify-between items-center h-16">
                     {/* Логотип */}
                     <div className="flex-shrink-0 cursor-pointer" onClick={() => navigate("/")}>
-                        <h1 className="text-xl font-bold text-indigo-700">EthnoKG</h1>
+                        <h1 className="text-xl font-bold text-indigo-700">EtnoKG</h1>
                     </div>
 
                     {/* Поиск + кнопки */}
@@ -24,20 +24,19 @@ const Header = () => {
                             type="text"
                             placeholder="Поиск..."
                             className="w-32 sm:w-64"
+                            value={searchText} // подключаем глобальный стейт
+                            onChange={(e) => setSearchText(e.target.value)} // обновляем стейт
                         />
 
                         {/* Админ ссылка */}
                         {user?.role === "user" && (
                             <>
-                                {/* Десктоп: иконка + текст */}
                                 <Link to="/create-product" className="hidden sm:flex ml-2">
                                     <Button variant="outline" className="items-center space-x-1">
                                         <Plus size={16} />
                                         <span>Создать товар</span>
                                     </Button>
                                 </Link>
-
-                                {/* Мобильный: только иконка */}
                                 <Link to="/create-product" className="flex sm:hidden ml-2">
                                     <Button variant="outline" className="p-2">
                                         <Plus size={20} />
