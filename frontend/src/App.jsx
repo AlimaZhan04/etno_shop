@@ -9,7 +9,7 @@ const App = () => {
 
     useEffect(() => {
         loadUser();
-    }, [loadUser]);
+    }, []);
 
     if (isGetMeLoading) {
         return (

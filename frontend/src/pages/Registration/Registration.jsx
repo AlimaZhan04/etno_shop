@@ -25,9 +25,6 @@ const Registration = () => {
 
     const navigate = useNavigate();
 
-    // Очистка ошибок при уходе со страницы
-    const handleBlur = () => clearError();
-
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
@@ -47,6 +44,10 @@ const Registration = () => {
             navigate("/", { replace: true });
         }
     };
+
+    useEffect(() => {
+        return () => clearError();
+    }, []);
 
     const token = localStorage.getItem('accessToken');
     if (token) return <Navigate to="/" replace />;
