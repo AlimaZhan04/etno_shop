@@ -3,6 +3,7 @@ import {Route, Routes} from "react-router";
 import routes from "./routes/routes.jsx";
 import useUserStore from "./store/user.js";
 import {CircularProgress} from "@mui/material";
+import {Toaster} from "react-hot-toast";
 
 const App = () => {
     const {loadUser, isGetMeLoading} = useUserStore();
@@ -28,6 +29,7 @@ const App = () => {
 
     return (
         <>
+            <Toaster position="top-center" reverseOrder={false} />
             <Routes>
                 {routes.map(({path, element, children}, index) => (
                     <Route key={index} path={path} element={element}>

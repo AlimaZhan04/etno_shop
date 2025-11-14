@@ -6,6 +6,10 @@ const useUserStore = create((set) => ({
     isGetMeLoading: true,
     searchText: "",
     setSearchText: (text) => set({ searchText: text }),
+    isCartOpen: false,
+    openCart: () => set({ isCartOpen: true }),
+    closeCart: () => set({ isCartOpen: false }),
+    toggleCart: () => set((state) => ({ isCartOpen: !state.isCartOpen })),
 
     register: async ({ name, email, password }) => {
         set({ loading: true, error: null });

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {ChevronLeft, ChevronRight, ShoppingCart, Trash2, Edit3} from "lucide-react";
 import {toast} from "react-hot-toast";
+import { Plus, Minus, X } from "lucide-react";
 import {
     AlertDialog,
     AlertDialogTrigger,
@@ -21,6 +22,13 @@ import config from '../../api/config.js';
 import useUserStore from "@/store/user.js";
 import styles from './ProductsGrid.module.scss';
 import {useNavigate} from "react-router";
+import {
+    Drawer,
+    DrawerContent,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+} from "@/components/ui/drawer"
 
 const ProductsGrid = () => {
     const [products, setProducts] = useState([]);
@@ -35,6 +43,8 @@ const ProductsGrid = () => {
     const [catLoading, setCatLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const navigate = useNavigate();
+    const [cart, setCart] = useState([]);
+    const { isCartOpen, openCart, closeCart } = useUserStore();
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -59,6 +69,21 @@ const ProductsGrid = () => {
         fetchProducts();
     }, []);
 
+    const fetchCart = async () => {
+        if (!user) return;
+        try {
+            const res = await axiosInstance.get("/cart");
+            setCart(res.data.items || []);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // при монтировании подгружаем корзину
+    useEffect(() => {
+        fetchCart();
+    }, [user]);
+
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -77,6 +102,52 @@ const ProductsGrid = () => {
     const openModal = (product) => {
         setSelectedProduct(product);
         setCurrentImage(0);
+    };
+
+    const addToCart = async (productId) => {
+        try {
+            const res = await axiosInstance.post("/cart/add", { productId, quantity: 1 });
+            setCart(res.data.items);
+            toast.success("Товар добавлен в корзину");
+        } catch (err) {
+            console.error(err);
+            toast.error("Не удалось добавить товар");
+        }
+    };
+
+    const updateCartItem = async (productId, newQuantity) => {
+        if (newQuantity < 1) return; // нельзя меньше 1
+        try {
+            const res = await axiosInstance.post("/cart/update", { productId, quantity: newQuantity });
+            setCart(res.data.items);
+            toast.success("Количество обновлено");
+        } catch (err) {
+            console.error(err);
+            const message = err.response?.data?.message || "Не удалось изменить количество";
+            toast.error(message);
+        }
+    };
+
+    const removeFromCart = async (productId) => {
+        try {
+            const res = await axiosInstance.delete(`/cart/remove/${productId}`);
+            setCart(res.data.items);
+            toast.success("Товар удалён из корзины");
+        } catch (err) {
+            console.error(err);
+            toast.error("Не удалось удалить товар");
+        }
+    };
+
+    const clearCart = async () => {
+        try {
+            const res = await axiosInstance.post("/cart/clear");
+            setCart(res.data.items);
+            toast.success("Корзина очищена");
+        } catch (err) {
+            console.error(err);
+            toast.error("Не удалось очистить корзину");
+        }
     };
 
     const closeModal = () => setSelectedProduct(null);
@@ -258,6 +329,7 @@ const ProductsGrid = () => {
                         <div className="px-3 pb-3">
                             <Button
                                 variant="outline"
+                                onClick={() => addToCart(product._id)}
                                 className="w-full flex items-center justify-center space-x-2 text-black border-black hover:bg-black hover:text-white"
                                 style={{fontFamily: 'Comfortaa, cursive'}}
                             >
@@ -353,6 +425,89 @@ const ProductsGrid = () => {
                         </DialogContent>
                     </Dialog>
                 )}
+
+                <Drawer  direction="right"
+                         open={isCartOpen}
+                         onOpenChange={(open) => open ? openCart() : closeCart()}>
+                    <DrawerContent className="w-96 ml-auto"> {/* ml-auto → прижать вправо */}
+                        <DrawerHeader>
+                            <DrawerTitle>Корзина</DrawerTitle>
+                        </DrawerHeader>
+
+                        <div className="flex flex-col gap-3 p-4">
+                            {cart.length === 0 && <div>Корзина пуста</div>}
+
+                            {cart.map((item) => (
+                                <div
+                                    key={item.product._id}
+                                    className="flex items-center justify-between border p-3 rounded-xl shadow-sm bg-white hover:shadow-md transition"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <img
+                                            src={config.IMAGE_BASE_URL + item.product.images[0]}
+                                            className="w-16 h-16 object-cover rounded-lg border"
+                                            alt={item.product.name}
+                                        />
+                                        <div className="flex flex-col">
+                                            <div className="font-semibold text-gray-800">{item.product.name}</div>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="p-1 rounded"
+                                                    onClick={() => updateCartItem(item.product._id, item.quantity - 1)}
+                                                >
+                                                    <Minus size={16} />
+                                                </Button>
+                                                <span className="px-2 font-medium">{item.quantity}</span>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="p-1 rounded"
+                                                    onClick={() => updateCartItem(item.product._id, item.quantity + 1)}
+                                                >
+                                                    <Plus size={16} />
+                                                </Button>
+                                            </div>
+                                            <div className="text-gray-700 font-medium mt-1">
+                                                {item.product.price * item.quantity} сом
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="hover:bg-red-50 rounded-full p-1"
+                                        onClick={() => removeFromCart(item.product._id)}
+                                    >
+                                        <X size={18} className="text-red-500" />
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+
+                        <DrawerFooter className="flex flex-col gap-2">
+                            {cart.length > 0 && (
+                                <>
+                                    <div className="font-bold text-lg">
+                                        Итого: {
+                                        cart.reduce(
+                                            (sum, item) =>
+                                                sum + item.product.price * item.quantity,
+                                            0
+                                        )
+                                    } сом
+                                    </div>
+
+                                    <Button variant="destructive" onClick={clearCart}>
+                                        Очистить корзину
+                                    </Button>
+                                </>
+                            )}
+                            <Button onClick={closeCart}>Закрыть</Button>
+                        </DrawerFooter>
+                    </DrawerContent>
+                </Drawer>
             </div>
         </div>
     );

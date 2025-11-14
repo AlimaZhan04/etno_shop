@@ -4,6 +4,7 @@ import cors from 'cors'
 import authRoutes from './routes/auth.js';
 import categoryRoutes from './routes/category.js';
 import productRoutes from './routes/product.js';
+import cartRoutes from './routes/cart.js';
 import config from "./config.js";
 import path from "path";
 
@@ -16,6 +17,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
 
 mongoose.connect(config.db.url)
     .then(() => console.log('MongoDB connected'))
