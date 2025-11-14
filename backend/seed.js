@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 import Category from "./models/Category.js";
 
 const categories = [
-    { name: "Сувениры" },
-    { name: "Национальная одежда" },
-    { name: "Украшения" },
-    { name: "Аксессуары из войлока" },
-    { name: "Традиционная посуда" }
+    { name: "Сувенирные изделия" },
+    { name: "Одежда и акксесуары" },
+    { name: "Подарочные пакеты" },
+    { name: "Войлочные тапочки" },
+    { name: "Сидушки" }
 ];
 
 const MONGO_URI = "mongodb://localhost:27017/shop";

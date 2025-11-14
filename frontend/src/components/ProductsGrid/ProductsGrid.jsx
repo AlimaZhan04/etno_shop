@@ -31,6 +31,9 @@ const ProductsGrid = () => {
     const [maxPriceInput, setMaxPriceInput] = useState(10000); // допустим
     const [priceRange, setPriceRange] = useState([0, 10000]);
     const {user, searchText} = useUserStore();
+    const [categories, setCategories] = useState([]);
+    const [catLoading, setCatLoading] = useState(true);
+    const [selectedCategory, setSelectedCategory] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -56,6 +59,21 @@ const ProductsGrid = () => {
         fetchProducts();
     }, []);
 
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await axiosInstance.get("/categories");
+                setCategories(res.data);
+            } catch (err) {
+                console.error("Ошибка при получении категорий:", err);
+                toast.error("Не удалось загрузить категории");
+            } finally {
+                setCatLoading(false);
+            }
+        };
+        fetchCategories();
+    }, []);
+
     const openModal = (product) => {
         setSelectedProduct(product);
         setCurrentImage(0);
@@ -77,16 +95,35 @@ const ProductsGrid = () => {
     };
 
     const filteredProducts = products.filter(p =>
+        (!selectedCategory || p.category?._id === selectedCategory) &&
         p.name.toLowerCase().includes(searchText.toLowerCase()) &&
         p.price >= priceRange[0] &&
         p.price <= priceRange[1]
-    );
+    )
 
     if (loading) return <div className="p-4 text-center">Загрузка товаров...</div>;
 
     return (
         <div className={styles.container}>
-            <div className="mb-4 flex items-center gap-4 mt-25">
+            <div className="flex flex-wrap gap-2 mb-4 mt-25">
+                {catLoading ? (
+                    <div>Загрузка категорий...</div>
+                ) : (
+                    categories.map(cat => (
+                        <Button
+                            key={cat._id}
+                            variant={selectedCategory === cat._id ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => {
+                                setSelectedCategory(selectedCategory === cat._id ? null : cat._id);
+                            }}
+                        >
+                            {cat.name}
+                        </Button>
+                    ))
+                )}
+            </div>
+            <div className="mb-4 flex items-center gap-4">
                 {/* Инпуты */}
                 <div className="flex items-center gap-4">
                     <div className="flex flex-col items-center">
