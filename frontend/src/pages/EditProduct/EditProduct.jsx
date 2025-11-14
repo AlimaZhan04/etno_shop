@@ -206,10 +206,10 @@ const EditProduct = () => {
 
                         {/* Description */}
                         <div className="flex flex-col space-y-2">
-                            <Label>Описание</Label>
+                            <Label>История</Label>
                             <Textarea
                                 name="description"
-                                placeholder="Краткое описание товара..."
+                                placeholder="История товаров"
                                 value={product.description}
                                 onChange={handleChange}
                             />

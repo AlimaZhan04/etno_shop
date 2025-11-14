@@ -57,7 +57,7 @@ const Header = () => {
                         </Button>
 
                         {/* User */}
-                        <Button variant="ghost" className="p-2">
+                        <Button variant="ghost" className="p-2" onClick={() => navigate("/profile")}>
                             <User size={20} />
                         </Button>
                     </div>

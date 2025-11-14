@@ -10,6 +10,7 @@ const useUserStore = create((set) => ({
     openCart: () => set({ isCartOpen: true }),
     closeCart: () => set({ isCartOpen: false }),
     toggleCart: () => set((state) => ({ isCartOpen: !state.isCartOpen })),
+    setUser: (user) => set({ user }),
 
     register: async ({ name, email, password }) => {
         set({ loading: true, error: null });

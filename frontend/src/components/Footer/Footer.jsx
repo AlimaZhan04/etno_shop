@@ -1,4 +1,5 @@
 import {Facebook, Instagram, Twitter} from "lucide-react";
+import {Link} from "react-router";
 import React from "react";
 
 const Footer = () => {
@@ -16,18 +17,15 @@ const Footer = () => {
 
                     {/* Ссылки */}
                     <div className="flex space-x-6">
-                        <a href="#" className="hover:text-indigo-400">
+                        <Link to="/" className="hover:text-indigo-400">
                             Главная
-                        </a>
+                        </Link>
                         <a href="#" className="hover:text-indigo-400">
                             Категории
                         </a>
-                        <a href="#" className="hover:text-indigo-400">
-                            О нас
-                        </a>
-                        <a href="#" className="hover:text-indigo-400">
+                        <Link to="/contacts" className="hover:text-indigo-400">
                             Контакты
-                        </a>
+                        </Link>
                     </div>
 
                     {/* Соцсети */}
