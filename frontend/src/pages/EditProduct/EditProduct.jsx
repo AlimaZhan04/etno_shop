@@ -8,8 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Upload, ImagePlus, Loader2 } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
+import { useParams, useNavigate } from "react-router";
+import config from "@/api/config.js";
 
-const CreateProduct = () => {
+const EditProduct = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+
     const [product, setProduct] = useState({
         name: "",
         price: "",
@@ -18,13 +23,15 @@ const CreateProduct = () => {
         category: "",
     });
 
-    const [images, setImages] = useState([]);
-    const [preview, setPreview] = useState([]);
+    const [oldImages, setOldImages] = useState([]); // уже загруженные картинки
+    const [newImages, setNewImages] = useState([]); // новые файлы
+    const [preview, setPreview] = useState([]); // для отображения превью
     const [loading, setLoading] = useState(false);
 
     const [categories, setCategories] = useState([]);
     const [catLoading, setCatLoading] = useState(true);
 
+    // Получение категорий
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -40,12 +47,55 @@ const CreateProduct = () => {
         fetchCategories();
     }, []);
 
+    // Получение данных товара
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const res = await axiosInstance.get(`/products/${id}`);
+                const data = res.data;
+                setProduct({
+                    name: data.name,
+                    price: data.price,
+                    quantity: data.quantity,
+                    description: data.description,
+                    category: data.category._id,
+                });
+                setOldImages(data.images); // массив серверных путей
+                setPreview(data.images.map(img => `${config.IMAGE_BASE_URL}${img}`));
+            } catch (err) {
+                console.error("Ошибка при получении товара:", err);
+                toast.error("Не удалось загрузить товар");
+            }
+        };
+        fetchProduct();
+    }, [id]);
+
     const handleChange = (e) => setProduct({ ...product, [e.target.name]: e.target.value });
 
     const handleImages = (e) => {
         const files = Array.from(e.target.files);
-        setImages((prev) => [...prev, ...files]);
-        setPreview((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))]);
+        setNewImages(prev => [...prev, ...files]);
+        setPreview(prev => [
+            ...prev,
+            ...files.map(f => URL.createObjectURL(f))
+        ]);
+    };
+
+    const handleRemoveImage = (idx) => {
+        // Если удаляем старую картинку
+        if (idx < oldImages.length) {
+            const removed = [...oldImages];
+            removed.splice(idx, 1);
+            setOldImages(removed);
+        } else {
+            // удаляем новую
+            const newIdx = idx - oldImages.length;
+            const removed = [...newImages];
+            removed.splice(newIdx, 1);
+            setNewImages(removed);
+        }
+        // обновляем превью
+        setPreview(prev => prev.filter((_, i) => i !== idx));
     };
 
     const handleSubmit = async (e) => {
@@ -59,28 +109,21 @@ const CreateProduct = () => {
             formData.append("quantity", product.quantity);
             formData.append("description", product.description);
             formData.append("category", product.category);
-            images.forEach((img) => formData.append("images", img));
 
-            const res = await axiosInstance.post("/products", formData, {
+            // новые файлы
+            newImages.forEach(file => formData.append("images", file));
+            // старые картинки
+            formData.append("existingImages", JSON.stringify(oldImages));
+
+            await axiosInstance.put(`/products/${id}`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
 
-            toast.success("Товар успешно создан!");
-            console.log("Созданный продукт:", res.data);
-
-            // Очистка формы
-            setProduct({
-                name: "",
-                price: "",
-                quantity: "",
-                description: "",
-                category: "",
-            });
-            setImages([]);
-            setPreview([]);
+            toast.success("Товар успешно обновлён!");
+            // navigate("/admin/products");
         } catch (err) {
-            console.error("Ошибка при создании товара:", err);
-            toast.error("Не удалось создать товар. Попробуйте снова.");
+            console.error("Ошибка при обновлении товара:", err);
+            toast.error("Не удалось обновить товар. Попробуйте снова.");
         } finally {
             setLoading(false);
         }
@@ -88,12 +131,11 @@ const CreateProduct = () => {
 
     return (
         <div className="flex justify-center py-10 px-4 mt-20">
-            {/* Toaster для отображения уведомлений */}
             <Toaster position="top-right" />
 
             <Card className="w-full max-w-2xl shadow-xl border border-neutral-200 rounded-2xl">
                 <CardHeader>
-                    <CardTitle className="text-2xl font-semibold">Создание товара</CardTitle>
+                    <CardTitle className="text-2xl font-semibold">Редактирование товара</CardTitle>
                 </CardHeader>
 
                 <CardContent>
@@ -206,10 +248,7 @@ const CreateProduct = () => {
                                             />
                                             <button
                                                 type="button"
-                                                onClick={() => {
-                                                    setPreview((prev) => prev.filter((_, i) => i !== idx));
-                                                    setImages((prev) => prev.filter((_, i) => i !== idx));
-                                                }}
+                                                onClick={() => handleRemoveImage(idx)}
                                                 className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
                                             >
                                                 ✕
@@ -225,7 +264,7 @@ const CreateProduct = () => {
                             type="submit"
                             disabled={loading}
                         >
-                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Создать товар"}
+                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Сохранить изменения"}
                         </Button>
                     </form>
                 </CardContent>
@@ -234,4 +273,4 @@ const CreateProduct = () => {
     );
 };
 
-export default CreateProduct;
+export default EditProduct;
