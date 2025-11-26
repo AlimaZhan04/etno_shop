@@ -7,4 +7,5 @@ export const PATHS = {
     CREATE_PRODUCTS_PAGE: "create-product",
     EDIT_PRODUCTS_PAGE: "edit-product/:id",
     CHECKOUT_PAGE: "/checkout",
+    ADMIN_ORDERS_PAGE: "/admin-orders",
 }

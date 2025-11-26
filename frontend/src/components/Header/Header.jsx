@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import useUserStore from "@/store/user.js";
 import { Link, useNavigate } from "react-router";
+import { ShoppingBag } from 'lucide-react';
 
 const Header = () => {
     const { user, searchText, setSearchText, toggleCart } = useUserStore();
@@ -55,6 +56,17 @@ const Header = () => {
                         >
                             <ShoppingCart size={20} />
                         </Button>
+
+                        {/* Admin po idee*/}
+                        {user?.role === 'user' && (
+                            <Button
+                                variant="ghost"
+                                className="p-2 relative"
+                                onClick={() => navigate("/admin-orders")}
+                            >
+                                <ShoppingBag size={20} />
+                            </Button>
+                        )}
 
                         {/* User */}
                         <Button variant="ghost" className="p-2" onClick={() => navigate("/profile")}>

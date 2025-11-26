@@ -7,6 +7,7 @@ import EditProduct from "@/pages/EditProduct/EditProduct.jsx";
 import Profile from "@/pages/Profile/Profile.jsx";
 import ContactPage from '@/pages/ContactPage/ContactPage.jsx';
 import CheckoutPage from "@/pages/CheckoutPage/CheckoutPage.jsx";
+import AdminOrdersPage from "@/pages/AdminOrdersPage/AdminOrdersPage.jsx";
 
 const routes = [{
     path: PATHS.MAIN_PAGE, element: <Layout/>, children: [
@@ -15,6 +16,7 @@ const routes = [{
         {path: PATHS.PROFILE_PAGE, element: <Profile/>},
         {path: PATHS.CONTACT_PAGE, element: <ContactPage/>},
         {path: PATHS.CHECKOUT_PAGE, element: <CheckoutPage/>},
+        {path: PATHS.ADMIN_ORDERS_PAGE, element: <AdminOrdersPage/>},
     ]
 }, {
     path: PATHS.REGISTER_PAGE, element: <Registration/>

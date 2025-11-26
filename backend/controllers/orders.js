@@ -26,8 +26,11 @@ export const createOrder = async (req, res) => {
         let totalAmount = 0;
         const orderItems = [];
 
+        const productUpdates = [];
+
         for (const cartItem of userCart.items) {
             const product = cartItem.product;
+            const quantity = cartItem.quantity;
 
             if (!product) {
                 console.error(`Товар с ID ${cartItem.product} не найден.`);
@@ -35,16 +38,27 @@ export const createOrder = async (req, res) => {
             }
 
             const price = product.price;
-            const itemTotal = price * cartItem.quantity;
+            const itemTotal = price * quantity;
             totalAmount += itemTotal;
 
             orderItems.push({
                 product: product._id,
                 name: product.name,
-                quantity: cartItem.quantity,
+                quantity: quantity,
                 priceAtPurchase: price,
             });
+
+            productUpdates.push(
+                Product.findByIdAndUpdate(
+                    product._id,
+                    { $inc: { salesCount: quantity } }, // Атомарно увеличиваем salesCount
+                    { new: false }
+                )
+            );
         }
+
+        await Promise.all(productUpdates);
+        // ----------------------------------------------------
 
         const order = new Order({
             user: userId,
@@ -70,7 +84,7 @@ export const createOrder = async (req, res) => {
         console.error('Ошибка при создании заказа:', error);
         res.status(500).json({ message: 'Ошибка сервера при оформлении заказа.' });
     }
-};
+}
 
 export const getMyOrders = async (req, res) => {
     try {

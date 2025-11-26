@@ -30,7 +30,10 @@ export const createProduct = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
     try {
-        const products = await Product.find().populate("category");
+        const products = await Product.find({})
+            .sort({ salesCount: -1, createdAt: -1 })
+            .populate("category");
+
         res.status(200).json(products);
     } catch (err) {
         console.error("Ошибка получения продуктов:", err);
