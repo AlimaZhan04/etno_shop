@@ -52,7 +52,6 @@ const ProductsGrid = () => {
                 const res = await axiosInstance.get("/products");
                 setProducts(res.data);
 
-                // автоматически устанавливаем диапазон цен по товарам
                 const prices = res.data.map(p => p.price);
                 const min = Math.min(...prices);
                 const max = Math.max(...prices);
@@ -498,6 +497,17 @@ const ProductsGrid = () => {
                                         )
                                     } сом
                                     </div>
+                                    <Button
+                                        onClick={() => {
+                                            closeCart();
+                                            navigate('/checkout');
+                                        }}
+                                        variant="default"
+                                        className="w-full transition-all duration-200"
+                                        style={{fontFamily: 'Comfortaa, cursive'}}
+                                    >
+                                        Перейти к оплате
+                                    </Button>
 
                                     <Button variant="destructive" onClick={clearCart}>
                                         Очистить корзину

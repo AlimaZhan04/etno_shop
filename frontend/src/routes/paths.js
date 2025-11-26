@@ -6,4 +6,5 @@ export const PATHS = {
     CONTACT_PAGE: "/contacts",
     CREATE_PRODUCTS_PAGE: "create-product",
     EDIT_PRODUCTS_PAGE: "edit-product/:id",
+    CHECKOUT_PAGE: "/checkout",
 }

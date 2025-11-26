@@ -5,6 +5,7 @@ import authRoutes from './routes/auth.js';
 import categoryRoutes from './routes/category.js';
 import productRoutes from './routes/product.js';
 import cartRoutes from './routes/cart.js';
+import orderRoutes from './routes/orders.js';
 import config from "./config.js";
 import path from "path";
 
@@ -18,6 +19,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
 
 mongoose.connect(config.db.url)
     .then(() => console.log('MongoDB connected'))

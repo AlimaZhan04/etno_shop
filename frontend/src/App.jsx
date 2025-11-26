@@ -12,33 +12,32 @@ const App = () => {
         loadUser();
     }, []);
 
-    if (isGetMeLoading) {
-        return (
-            <div
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100dvh',
-                }}
-            >
-                <CircularProgress />
-            </div>
-        );
-    }
-
     return (
         <>
             <Toaster position="top-center" reverseOrder={false} />
-            <Routes>
-                {routes.map(({path, element, children}, index) => (
-                    <Route key={index} path={path} element={element}>
-                        {children?.map(({path: childPath, element: childElement}, childIndex) => (
-                            <Route key={childIndex} path={childPath} element={childElement} />
-                        ))}
-                    </Route>
-                ))}
-            </Routes>
+
+            {isGetMeLoading ? (
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: '100dvh',
+                    }}
+                >
+                    <CircularProgress />
+                </div>
+            ) : (
+                <Routes>
+                    {routes.map(({path, element, children}, index) => (
+                        <Route key={index} path={path} element={element}>
+                            {children?.map(({path: childPath, element: childElement}, childIndex) => (
+                                <Route key={childIndex} path={childPath} element={childElement} />
+                            ))}
+                        </Route>
+                    ))}
+                </Routes>
+            )}
         </>
     );
 };
